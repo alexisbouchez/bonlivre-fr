@@ -1,0 +1,61 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String          @id @default(uuid())
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  email     String          @unique
+  username  String          @unique
+  password  String
+  avatar    String?
+  bookShelf BookShelfItem[]
+  reviews   Review[]
+}
+
+model Book {
+  id             String          @id @default(uuid())
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  title          String
+  author         String
+  year           Int
+  genre          String
+  language       String          @default("english")
+  cover          String
+  confirmed      Boolean         @default(false)
+  bookShelfItems BookShelfItem[]
+  reviews        Review[]
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  comment String
+  stars   Int
+
+  book   Book   @relation(fields: [bookId], references: [id])
+  bookId String
+
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+}
+
+model BookShelfItem {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  book      Book     @relation(fields: [bookId], references: [id])
+  bookId    String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  status    String
+}

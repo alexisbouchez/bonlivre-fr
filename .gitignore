@@ -1,0 +1,15 @@
+# Node modules
+node_modules
+
+# Build output
+/build
+/public/build
+
+# Styles
+/app/styles/app.css
+
+# Prisma SQLite database
+prisma/data.db
+
+# Environment variables
+.env
