@@ -128,7 +128,6 @@ export const action: ActionFunction = async ({
   }
 
   const formData = await request.formData();
-  console.log(formData.entries());
   const _action = formData.get("_action");
 
   if (request.method === "DELETE" && _action === "bookshelf") {
@@ -139,7 +138,6 @@ export const action: ActionFunction = async ({
 
   if (request.method === "DELETE" && !_action) {
     const reviewId = formData.get("reviewId");
-    console.log(reviewId);
     if (typeof reviewId !== "string") {
       return null;
     }
