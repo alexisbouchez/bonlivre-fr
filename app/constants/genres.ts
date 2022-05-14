@@ -5,6 +5,10 @@ export interface Genre {
 
 const genres: Genre[] = [
   {
+    value: "anthropoogy",
+    label: "Anthropologie",
+  },
+  {
     value: "history",
     label: "Histoire",
   },
