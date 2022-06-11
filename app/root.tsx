@@ -13,10 +13,14 @@ import Header from "./components/concerns/layouts/Header";
 import { getUser, getUserId, signOut } from "./utils/session.server";
 import Footer from "./components/concerns/layouts/Footer";
 import { i18n } from "./utils/i18n.server";
+import cover from "./images/cover.png";
 
 export const meta: MetaFunction = () => ({
   title: "BonLivre",
   description: "Sauvegardez, notez et commentez vos lectures",
+  "og:image": cover,
+  "twitter:image": cover,
+  "twitter:card": "summary_large_image",
 });
 
 export const links = () => [
