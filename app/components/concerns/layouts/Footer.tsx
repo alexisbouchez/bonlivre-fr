@@ -11,11 +11,11 @@ const Footer: React.FC = () => {
             {" - "}
             <a
               className="font-semibold hover:opacity-75"
-              href="https://www.softwarecitadel.com"
+              href="https://www.alexisbouchez.me"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Software Citadel
+              Alexis Bouchez
             </a>
             . Tous droits réservés.
           </p>
