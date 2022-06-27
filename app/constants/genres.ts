@@ -9,6 +9,10 @@ const genres: Genre[] = [
     label: "Anthropologie",
   },
   {
+    value: "essays",
+    label: "Essais",
+  },
+  {
     value: "history",
     label: "Histoire",
   },
