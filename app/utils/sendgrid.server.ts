@@ -2,13 +2,20 @@ import { MailDataRequired } from "@sendgrid/mail";
 import * as sendgrid from "@sendgrid/mail";
 import { generatePasswordResetToken, getUserByEmail } from "./user.server";
 
-if (!process.env.SENDGRID_API_KEY) {
-  throw new Error("SENDGRID_API_KEY is not set");
+
+if (process.env.NODE_ENV === "production") {
+  if (!process.env.SENDGRID_API_KEY) {
+    throw new Error("SENDGRID_API_KEY is not set");
+  }
+
+  sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
 }
 
-sendgrid.setApiKey(process.env.SENDGRID_API_KEY);
-
 export async function sendForgotPasswordMail(email: string) {
+  if (process.env.NODE_ENV !== "production") {
+    return;
+  }
+
   try {
     const user = await getUserByEmail(email);
 

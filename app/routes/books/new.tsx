@@ -1,5 +1,5 @@
 import { Book } from "@prisma/client";
-import { ActionFunction, MetaFunction } from "remix";
+import { ActionFunction, LoaderFunction, MetaFunction } from "remix";
 import {
   Form,
   redirect,
@@ -16,6 +16,7 @@ import languages from "~/constants/languages";
 import { AddBookParams } from "~/utils/book.server";
 import { addBook } from "~/utils/book.server";
 import { uploadHandler } from "~/utils/cloudinary.server";
+import { searchBooks } from "~/utils/google-books-api";
 
 export const meta: MetaFunction = () => {
   return { title: "BonLivre - Ajouter un livre" };
@@ -36,6 +37,13 @@ type ActionData = {
   error?: string;
   fields?: any;
 };
+
+export const loader: LoaderFunction = async () => {
+  const books = await searchBooks("Gagner la ");
+  console.log("books", books);
+
+  return null;
+}
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await unstable_parseMultipartFormData(
