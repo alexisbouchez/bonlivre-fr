@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { ChevronDownIcon } from "@heroicons/react/solid";
-import { Link } from "remix";
+import { Link } from "@remix-run/react";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");

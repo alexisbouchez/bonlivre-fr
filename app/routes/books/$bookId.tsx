@@ -1,6 +1,6 @@
-import { Book, Review } from "@prisma/client";
+import type { Book, Review } from "@prisma/client";
 import { useState } from "react";
-import { ActionFunction, LoaderFunction, MetaFunction } from "remix";
+import type { ActionFunction, LoaderFunction, MetaFunction } from "remix";
 import { useActionData, useLoaderData } from "remix";
 import BookshelfActions from "~/components/concerns/books/bookshelves/BookshelfActions";
 import Container from "~/components/concerns/layouts/Container";
@@ -11,7 +11,7 @@ import {
   updateBookshelfStatus,
 } from "~/utils/bookshelf.server";
 import { getBookById } from "~/utils/book.server";
-import { ReviewWithUser } from "~/utils/review.server";
+import type { ReviewWithUser } from "~/utils/review.server";
 import {
   createReview,
   deleteReview,

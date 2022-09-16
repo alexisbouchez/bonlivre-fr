@@ -1,6 +1,7 @@
-import { Book } from "@prisma/client";
-import { LoaderFunction, MetaFunction } from "remix";
-import { json, useLoaderData } from "remix";
+import type { Book } from "@prisma/client";
+import type { LoaderFunction, MetaFunction } from "@remix-run/node";
+import { json } from "@remix-run/node";
+import { useLoaderData } from "@remix-run/react";
 import ExploreBooksGrid from "~/components/concerns/books/ExploreBooksGrid";
 import ExploreBooksLayout from "~/components/concerns/books/ExploreBooksLayout";
 import { getBooksAndCount } from "~/utils/book.server";
