@@ -1,18 +1,14 @@
 import * as React from "react";
 import { SearchIcon } from "@heroicons/react/solid";
 import { Combobox, Dialog, Transition } from "@headlessui/react";
-import type { GoogleBooksApiBook } from "~/utils/google-books-api";
+import { GoogleBooksApiBook } from "~/utils/google-books-api";
+import { useFetcher } from "@remix-run/react";
 
 interface ImportBookPaletteProps {
   open: boolean;
   setOpen: (open: boolean) => void;
 }
 
-type Person = {
-  id: number;
-  name: string;
-  url: string;
-};
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
@@ -23,18 +19,23 @@ const ImportBookPalette: React.FC<ImportBookPaletteProps> = ({
 }) => {
   const [query, setQuery] = React.useState("");
 
-  const books: GoogleBooksApiBook[] = [];
-
-  const filteredBooks =
-    query === ""
-      ? []
-      : books.filter((person) => {
-          return person.name.toLowerCase().includes(query.toLowerCase());
-        });
+  const fetcher = useFetcher();
+  
+  const [books, setBooks]  = React.useState<GoogleBooksApiBook[]>([]);
 
   const handleUpdateQuery = (event: React.ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
   };
+
+  const handleSearch = () => {
+    fetcher.load(`/books/new?query=${query}`);
+  }
+
+  React.useEffect(() => {
+    if (fetcher?.data?.books && fetcher?.data.books.length > 0) {
+      setBooks(fetcher.data.books);
+    }
+  }, [fetcher]);
 
   return (
     <Transition.Root
@@ -67,44 +68,49 @@ const ImportBookPalette: React.FC<ImportBookPaletteProps> = ({
             leaveTo="opacity-0 scale-95"
           >
             <Dialog.Panel className="mx-auto max-w-xl transform divide-y divide-gray-100 overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
-              <Combobox
-                onChange={(person: any) => (window.location = person.url)}
-              >
-                <div className="relative">
+              <Combobox>
+                <fetcher.Form className="relative" method="get">
                   <SearchIcon
                     className="pointer-events-none absolute top-3.5 left-4 h-5 w-5 text-gray-400"
                     aria-hidden="true"
                   />
                   <Combobox.Input
+                    autoComplete="off"
+                    name="query"
                     className="h-12 w-full border-0 bg-transparent pl-11 pr-4 text-gray-800 placeholder-gray-400 focus:ring-0 sm:text-sm"
                     placeholder="Recherchez un livre..."
                     onChange={handleUpdateQuery}
-                  />
-                </div>
+                    onKeyDown={(event: any) => {
+                      if (event.key === "Enter") {
+                        handleSearch();
+                      }
+                    }}
+                />
+                </fetcher.Form>
 
-                {filteredBooks.length > 0 && (
+                {books.length > 0 && (
                   <Combobox.Options
                     static
                     className="max-h-72 scroll-py-2 overflow-hidden py-2 text-sm text-gray-800"
                   >
-                    {filteredBooks.map((person) => (
+                    {books.map((book, key) => (
                       <Combobox.Option
-                        key={person.id}
-                        value={person}
+                        key={key}
+                        value={book}
                         className={({ active }) =>
                           classNames(
                             "cursor-default select-none px-4 py-2",
-                            active ? "bg-emerald-800 text-white" : ""
+                            active ? "bg-emerald-900 text-white" : ""
                           )
                         }
                       >
-                        {person.name}
+                        {book.title} - {book.author}
                       </Combobox.Option>
                     ))}
                   </Combobox.Options>
                 )}
 
-                {query !== "" && filteredBooks.length === 0 && (
+                {query !== "" && books.length === 0 && (
                   <p className="p-4 text-sm text-gray-500">
                     Aucun livre correspondant à votre recherche.
                   </p>

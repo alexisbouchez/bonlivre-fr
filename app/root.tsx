@@ -35,13 +35,11 @@ export const links = () => [
 type LoaderData = {
   isLoggedIn: boolean;
   name?: string;
-  locale: string;
 };
 
 export const loader: LoaderFunction = async ({ request }) => {
   const userId = await getUserId(request);
   const isLoggedIn = !!userId;
-  const locale = await i18n.getLocale(request);
 
   if (userId) {
     const user = await getUser(request);
@@ -53,10 +51,10 @@ export const loader: LoaderFunction = async ({ request }) => {
 
     const name = user.username;
 
-    return { isLoggedIn, name, locale };
+    return { isLoggedIn, name, };
   }
 
-  return { isLoggedIn, locale };
+  return { isLoggedIn, };
 };
 
 export default function App() {

@@ -14,18 +14,23 @@ export async function searchBooks(
     const response = await fetch(url);
     const data = await response.json();
 
-    return (
-      data.items?.map((item: any) => {
-        const book = item.volumeInfo;
-        console.log("book", book);
+    const books: GoogleBooksApiBook[] = [];
 
-        return {
-          title: book.title,
-          author: book.authors.join(", "),
-          year: book.publishedDate.split("-")[0],
-        };
-      }) || []
-    );
+    for (const item of data.items) {
+      const book = item.volumeInfo;
+   
+      if (!book.title || !book.authors || !book.authors[0] || !book.publishedDate) {
+        continue;
+      }
+
+      books.push({
+        title: item.volumeInfo.title,
+        author: book.authors?.join(", "),
+        year: book.publishedDate.split("-")[0],
+      });
+    }
+
+    return books;
   } catch {
     return [];
   }
