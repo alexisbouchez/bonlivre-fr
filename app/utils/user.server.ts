@@ -1,9 +1,6 @@
-import { User } from "@prisma/client";
+import type { User } from "@prisma/client";
 import { db } from "./db.server";
-import cloudinary from "cloudinary";
-import { uploadFromBuffer } from "./cloudinary.server";
 import { sign, verify } from "jsonwebtoken";
-import { UploadHandler } from "remix";
 
 async function isValidEmail(email: string) {
   if (email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
@@ -147,40 +144,6 @@ export async function updateUser(
     return null;
   }
 }
-
-export const uploadAvatarHandler: UploadHandler = async ({ name, stream }) => {
-  if (name !== "avatar") {
-    stream.resume();
-    return;
-  }
-
-  const chunks = [];
-  for await (const chunk of stream) {
-    chunks.push(chunk);
-  }
-  const buffer = Buffer.concat(chunks);
-
-  if (!buffer.toString()) {
-    stream.resume();
-    return;
-  }
-
-  cloudinary.v2.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
-  });
-
-  try {
-    const result = await uploadFromBuffer(buffer, {
-      resource_type: "image",
-      folder: "avatars",
-    });
-    return result?.secure_url || "";
-  } catch {
-    return "";
-  }
-};
 
 export async function deleteUser(userId: string) {
   try {

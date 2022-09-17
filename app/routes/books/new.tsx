@@ -54,10 +54,17 @@ export const loader: LoaderFunction = async ({ request }) => {
 };
 
 export const action: ActionFunction = async ({ request }) => {
-  const formData = await unstable_parseMultipartFormData(
-    request,
-    uploadHandler
-  );
+  // Get the google query from url
+  const url = new URL(request.url);
+  const google = url.searchParams.get("google") || "";
+
+  let formData;
+
+  if (google === "true") {
+    formData = await request.formData();
+  } else {
+    formData = await unstable_parseMultipartFormData(request, uploadHandler);
+  }
 
   const title = formData.get("title");
   const author = formData.get("author");
@@ -146,7 +153,7 @@ export default function NewBook() {
             <Field type="number" name="year" placeholder="1913">
               Année de publication
             </Field>
-            <SelectField name="genre" label="Genres">
+            <SelectField name="genre" label="Genre">
               {genres.map(({ value, label }) => (
                 <option key={value} value={value}>
                   {label}

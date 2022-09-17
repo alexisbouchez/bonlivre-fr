@@ -1,4 +1,4 @@
-import { Book } from "@prisma/client";
+import type { Book } from "@prisma/client";
 import { db } from "./db.server";
 
 export interface GetBooksQuery {
@@ -95,7 +95,7 @@ export async function addBook(data: AddBookParams) {
   });
 
   if (bookFoundByTitleAndAuthor) {
-    return { error: "Ce livre existe déjà dans la base de données." };
+    return { book: bookFoundByTitleAndAuthor };
   }
 
   try {

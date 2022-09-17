@@ -1,13 +1,12 @@
-import { User } from "@prisma/client";
-import { UpdateUserInput } from "~/utils/user.server";
+import type { User } from "@prisma/client";
+import type { UpdateUserInput } from "~/utils/user.server";
 import {
   checkEmail,
   checkUsername,
   checkPasswords,
-  uploadAvatarHandler,
   deleteUser,
 } from "~/utils/user.server";
-import { ActionFunction, LoaderFunction, MetaFunction } from "remix";
+import type { ActionFunction, LoaderFunction, MetaFunction } from "remix";
 import {
   Form,
   unstable_parseMultipartFormData,
@@ -19,9 +18,10 @@ import { hash } from "bcryptjs";
 import { useLoaderData } from "remix";
 import Container from "~/components/concerns/layouts/Container";
 import { requireUser, requireUserId, signOut } from "~/utils/session.server";
-import { ChangeEvent } from "react";
+import type { ChangeEvent } from "react";
 import { useRef, useState } from "react";
 import DeactivateAccountModal from "~/components/concerns/account/DeactivateAccountModal";
+import { uploadAvatarHandler } from "~/utils/cloudinary.server";
 
 export const meta: MetaFunction = () => {
   return { title: "BonLivre - Paramètres" };

@@ -1,8 +1,13 @@
-import type { UploadHandler } from "@remix-run/node/formData";
 import cloudinary from "cloudinary";
 import { randomUUID } from "crypto";
 import { join } from "path";
 import fs from "fs";
+import type { UploadHandler } from "@remix-run/node";
+import {
+  writeAsyncIterableToWritable,
+  unstable_composeUploadHandlers as composeUploadHandlers,
+  unstable_createMemoryUploadHandler as createMemoryUploadHandler,
+} from "@remix-run/node";
 
 if (process.env.NODE_ENV === "production") {
   cloudinary.v2.config({
@@ -12,57 +17,76 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-export const uploadFromBuffer = (
-  buffer: Buffer,
-  options: cloudinary.UploadApiOptions
-): Promise<cloudinary.UploadApiResponse | undefined> => {
-  return new Promise((resolve, reject) => {
-    cloudinary.v2.uploader
-      .upload_stream(options, (error, result) => {
+export async function uploadImageToCloudinary(data: AsyncIterable<Uint8Array>) {
+  const uploadPromise = new Promise(async (resolve, reject) => {
+    const uploadStream = cloudinary.v2.uploader.upload_stream(
+      {},
+      (error, result) => {
         if (error) {
           reject(error);
-        } else {
-          resolve(result);
+          return;
         }
-      })
-      .end(buffer);
+        resolve(result);
+      }
+    );
+    await writeAsyncIterableToWritable(data, uploadStream);
   });
-};
 
-async function uploadImageToLocalDisk(buffer: Buffer) {
-  const fileName = randomUUID();
-  const filePath = join(process.cwd(), "public", "images", fileName);
-  fs.writeFileSync(filePath, buffer);
-  return fileName;
+  return uploadPromise;
 }
 
-export const uploadHandler: UploadHandler = async ({ name, stream }) => {
-  if (name !== "cover") {
-    stream.resume();
-    return;
-  }
-
-  if (process.env.NODE_ENV !== "production") {
-    return uploadImageToLocalDisk(await stream.read());
-  }
-
-  const chunks = [];
-
-  for await (const chunk of stream) {
-    chunks.push(chunk);
-  }
-
-  if (chunks.length === 0) {
-    stream.resume();
-    return;
-  }
-
-  const buffer = Buffer.concat(chunks);
-
+async function uploadImageToLocalDisk(data: AsyncIterable<Uint8Array>) {
   try {
-    const result = await uploadFromBuffer(buffer, {});
-    return result?.secure_url || "";
+    const uuid = randomUUID();
+    const path = join(process.cwd(), "public", "images", uuid);
+    const uploadStream = fs.createWriteStream(path);
+    await writeAsyncIterableToWritable(data, uploadStream);
+    return `/images/${uuid}`;
   } catch {
-    return "";
+    return null;
   }
-};
+}
+
+export const uploadHandler: UploadHandler = composeUploadHandlers(
+  async ({ name, data }) => {
+    if (name !== "cover") {
+      return undefined;
+    }
+
+    if (process.env.NODE_ENV !== "production") {
+      return uploadImageToLocalDisk(data);
+    }
+
+    try {
+      const uploadedImage = (await uploadImageToCloudinary(data)) as {
+        secure_url: string;
+      };
+      return uploadedImage.secure_url;
+    } catch {
+      return null;
+    }
+  },
+  createMemoryUploadHandler()
+);
+
+export const uploadAvatarHandler: UploadHandler = composeUploadHandlers(
+  async ({ name, data }) => {
+    if (name !== "avatar") {
+      return undefined;
+    }
+
+    if (process.env.NODE_ENV !== "production") {
+      return uploadImageToLocalDisk(data);
+    }
+
+    try {
+      const uploadedImage = (await uploadImageToCloudinary(data)) as {
+        secure_url: string;
+      };
+      return uploadedImage.secure_url;
+    } catch {
+      return null;
+    }
+  },
+  createMemoryUploadHandler()
+);
